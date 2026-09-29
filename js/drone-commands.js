@@ -24,15 +24,15 @@ const getDuration = value => {
 const normalizeDegrees = angle => ((angle % 360) + 360) % 360;
 const getShortestAngleDelta = (from, to) => ((to - from + 540) % 360) - 180;
 
-// Convert local drone coordinates into Three.js world coordinates. X is lateral,
-// Y is vertical, and Z is forward/backward relative to the current heading.
+// Convert local user coordinates into Three.js world coordinates. X is lateral,
+// Y is forward/backward, and Z is vertical. Three.js keeps world Y as vertical.
 const resolveRelativeOffset = (x, y, z, direction) => {
     const forwardRad = THREE.MathUtils.degToRad(direction - 90);
     const rightRad = forwardRad - Math.PI / 2;
     return new THREE.Vector3(
-        Math.sin(rightRad) * x + Math.sin(forwardRad) * z,
-        y,
-        Math.cos(rightRad) * x + Math.cos(forwardRad) * z
+        Math.sin(rightRad) * x + Math.sin(forwardRad) * y,
+        z,
+        Math.cos(rightRad) * x + Math.cos(forwardRad) * y
     );
 };
 
@@ -1278,9 +1278,9 @@ const initThree = () => {
         },
         goTo(x, y, z, callback) {
             x = getNumber(x);
-            y = getNumber(y, this.altitude);
-            z = getNumber(z);
-            return this.moveToInternal(-z, y, -x, callback, false);
+            y = getNumber(y);
+            z = getNumber(z, this.altitude);
+            return this.moveToInternal(-y, z, -x, callback, false);
         },
         moveBy(x, y, z, callback) {
             x = getNumber(x);
@@ -1297,12 +1297,12 @@ const initThree = () => {
         },
         curveAbs(x, y, z, xd, yd, zd, callback) {
             x = getNumber(x);
-            y = getNumber(y, this.altitude);
-            z = getNumber(z);
+            y = getNumber(y);
+            z = getNumber(z, this.altitude);
             xd = getNumber(xd);
-            yd = getNumber(yd, this.altitude);
-            zd = getNumber(zd);
-            return this.curveToInternal(-z, y, -x, -zd, yd, -xd, callback);
+            yd = getNumber(yd);
+            zd = getNumber(zd, this.altitude);
+            return this.curveToInternal(-y, z, -x, -yd, zd, -xd, callback);
         },
         curve(x, y, z, xd, yd, zd, callback) {
             x = getNumber(x);

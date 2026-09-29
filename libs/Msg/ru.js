@@ -477,13 +477,13 @@ Blockly.Msg["BKY_DRONE_GO_TO"] = "перейти в x %1 y %2 z %3";
 Blockly.Msg["BKY_DRONE_GO_TO_TOOLTIP"] = "Переместить дрон в абсолютную позицию с текущей скоростью";
 
 Blockly.Msg["BKY_DRONE_MOVE_BY"] = "сместиться на x %1 y %2 z %3";
-Blockly.Msg["BKY_DRONE_MOVE_BY_TOOLTIP"] = "Переместиться относительно текущего направления: X вправо/влево, Y вверх/вниз, Z вперёд/назад";
+Blockly.Msg["BKY_DRONE_MOVE_BY_TOOLTIP"] = "Переместиться относительно текущего направления: X вправо/влево, Y вперёд/назад, Z вверх/вниз";
 
 Blockly.Msg["BKY_DRONE_CURVE_ABS"] = "пролететь по кривой abs x %1 y %2 z %3 xd %4 yd %5 zd %6";
 Blockly.Msg["BKY_DRONE_CURVE_ABS_TOOLTIP"] = "Пролететь по кривой через текущую позицию, абсолютную промежуточную точку и абсолютную конечную точку";
 
 Blockly.Msg["BKY_DRONE_CURVE"] = "пролететь по кривой x %1 y %2 z %3 xd %4 yd %5 zd %6";
-Blockly.Msg["BKY_DRONE_CURVE_TOOLTIP"] = "Пролететь по кривой с относительными точками, ориентированными по текущему направлению дрона (Z вперёд/назад, X вправо/влево)";
+Blockly.Msg["BKY_DRONE_CURVE_TOOLTIP"] = "Пролететь по кривой с относительными точками: X вправо/влево, Y вперёд/назад, Z вверх/вниз";
 
 Blockly.Msg["BKY_DRONE_RETURN_TO_BASE"] = "вернуться на базу";
 Blockly.Msg["BKY_DRONE_RETURN_TO_BASE_TOOLTIP"] = "Вернуть дрон на базу с текущей скоростью";
@@ -512,8 +512,11 @@ Blockly.Msg["RETURN"]="Return";
 Blockly.Msg["BKY_SENSOR_X"] = "X";
 Blockly.Msg["BKY_SENSOR_X_TOOLTIP"] = "Возвращает координату X дрона";
 
+Blockly.Msg["BKY_SENSOR_Y"] = "Y";
+Blockly.Msg["BKY_SENSOR_Y_TOOLTIP"] = "Возвращает координату Y дрона";
+
 Blockly.Msg["BKY_SENSOR_Z"] = "Z";
-Blockly.Msg["BKY_SENSOR_Z_TOOLTIP"] = "Возвращает координату Z дрона";
+Blockly.Msg["BKY_SENSOR_Z_TOOLTIP"] = "Возвращает высоту дрона как координату Z";
 
 Blockly.Msg["BKY_SENSOR_ALTITUDE"] = "Высота";
 Blockly.Msg["BKY_SENSOR_ALTITUDE_TOOLTIP"] = "Возвращает высоту дрона";
@@ -547,6 +550,7 @@ Blockly.Msg.BKY_GRAPHICS_PERFORMANCE = "Производительность";
 Blockly.Msg.BKY_GRAPHICS_BALANCED = "Сбалансированно";
 Blockly.Msg.BKY_GRAPHICS_QUALITY = "Качество";
 Blockly.Msg.BKY_STATUS_X = "X:";
+Blockly.Msg.BKY_STATUS_Y = "Y:";
 Blockly.Msg.BKY_STATUS_Z = "Z:";
 Blockly.Msg.BKY_STATUS_ALTITUDE = "Высота:";
 Blockly.Msg.BKY_STATUS_DIRECTION = "Направление:";
