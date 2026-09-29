@@ -773,7 +773,8 @@ document.getElementById('helpBtn').addEventListener('click', function() {
         ru: 'doc/help-ru.html'
     };
     const helpPage = helpFiles[lang] || 'doc/help.html';
-    window.open(helpPage, '_blank');
+    const theme = localStorage.getItem(darkThemeStorageKey) === 'true' ? 'dark' : 'light';
+    window.open(`${helpPage}?theme=${theme}`, '_blank');
 });
 
 function loadScenarioList() {
