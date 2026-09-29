@@ -422,8 +422,8 @@ function isKeyPressed(key) {
 // Status panel synchronization
 const updateStatus = () => {
     document.getElementById('x').value = -drone.mesh.position.z.toFixed(2);
-    document.getElementById('z').value = -drone.mesh.position.x.toFixed(2);
-    document.getElementById('altitude').value = drone.altitude.toFixed(2);
+    document.getElementById('y').value = -drone.mesh.position.x.toFixed(2);
+    document.getElementById('z').value = drone.altitude.toFixed(2);
     document.getElementById('direction').value = ((-drone.direction.toFixed(0) % 360) + 360) % 360;
     document.getElementById('flightStatus').innerText = drone.flying ?
         (Blockly.Msg["BKY_FLIGHT_IN_FLIGHT"] || "In Flight") :
@@ -431,7 +431,7 @@ const updateStatus = () => {
 };
 
 const setupStatusInputs = () => {
-    document.getElementById('z').addEventListener('change', e => {
+    document.getElementById('y').addEventListener('change', e => {
         drone.mesh.position.x = -parseFloat(e.target.value);
         enforceTerrainCollision();
     }, {
@@ -443,7 +443,7 @@ const setupStatusInputs = () => {
     }, {
         passive: true
     });
-    document.getElementById('altitude').addEventListener('change', e => {
+    document.getElementById('z').addEventListener('change', e => {
         drone.mesh.position.y = parseFloat(e.target.value);
         enforceTerrainCollision();
     }, {
@@ -698,8 +698,8 @@ function applyLocalizedStrings() {
 
     // Status panel labels
     document.getElementById('labelX').innerText = Blockly.Msg["BKY_STATUS_X"] || 'X:';
+    document.getElementById('labelY').innerText = Blockly.Msg["BKY_STATUS_Y"] || 'Y:';
     document.getElementById('labelZ').innerText = Blockly.Msg["BKY_STATUS_Z"] || 'Z:';
-    document.getElementById('labelAlt').innerText = Blockly.Msg["BKY_STATUS_ALTITUDE"] || 'Altitude:';
     document.getElementById('labelDir').innerText = Blockly.Msg["BKY_STATUS_DIRECTION"] || 'Direction:';
     document.getElementById('labelStatus').innerText = Blockly.Msg["BKY_STATUS_FLIGHT"] || 'Status:';
     document.getElementById('labelVariables').innerText = Blockly.Msg["BKY_STATUS_VARIABLES"] ||

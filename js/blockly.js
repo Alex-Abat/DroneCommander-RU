@@ -9,7 +9,7 @@ const customBlockTypes = [
     "return_to_base", "set_altitude", "change_altitude", "set_angle",
     "change_angle", "slide", "walk", "walk_climbing", "go_to", "move_by", "curve_abs", "curve",
     "wait", "smoke", "set_speed", "sensor_keypressed", "sensor_x",
-    "sensor_z", "sensor_altitude", "sensor_direction", "sensor_speed",
+    "sensor_y", "sensor_z", "sensor_altitude", "sensor_direction", "sensor_speed",
     "start_block", "end_block"
 ];
 
@@ -353,6 +353,13 @@ function defineCustomBlocks() {
         "tooltip": Blockly.Msg["BKY_SENSOR_X_TOOLTIP"],
         "helpUrl": ""
     }, {
+        "type": "sensor_y",
+        "message0": Blockly.Msg["BKY_SENSOR_Y"],
+        "output": "Numeric",
+        "colour": 90,
+        "tooltip": Blockly.Msg["BKY_SENSOR_Y_TOOLTIP"],
+        "helpUrl": ""
+    }, {
         "type": "sensor_z",
         "message0": Blockly.Msg["BKY_SENSOR_Z"],
         "output": "Numeric",
@@ -582,8 +589,12 @@ Blockly.JavaScript.forBlock['sensor_x'] = block => {
     var code = "-drone.mesh.position.z.toFixed(2)";
     return [code, Blockly.JavaScript.ORDER_NONE];
 };
-Blockly.JavaScript.forBlock['sensor_z'] = block => {
+Blockly.JavaScript.forBlock['sensor_y'] = block => {
     var code = "-drone.mesh.position.x.toFixed(2)";
+    return [code, Blockly.JavaScript.ORDER_NONE];
+};
+Blockly.JavaScript.forBlock['sensor_z'] = block => {
+    var code = "drone.altitude.toFixed(2)";
     return [code, Blockly.JavaScript.ORDER_NONE];
 };
 Blockly.JavaScript.forBlock['sensor_altitude'] = block => {
@@ -939,6 +950,9 @@ const initBlockly = () => {
             }, {
                 "kind": "block",
                 "type": "sensor_x"
+            }, {
+                "kind": "block",
+                "type": "sensor_y"
             }, {
                 "kind": "block",
                 "type": "sensor_z"
