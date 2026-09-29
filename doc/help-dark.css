@@ -1,0 +1,58 @@
+html.dark-theme {
+  color-scheme: dark;
+}
+
+html.dark-theme body {
+  background: #20292b;
+  color: #e2e9e8;
+}
+
+html.dark-theme h1,
+html.dark-theme h2 {
+  color: #65cfc3;
+}
+
+html.dark-theme h2,
+html.dark-theme footer {
+  border-color: #4b5a5c;
+}
+
+html.dark-theme h3 {
+  color: #d5dedd;
+}
+
+html.dark-theme a {
+  color: #78d4ca;
+}
+
+html.dark-theme code {
+  background: #344043;
+  color: #eff5f4;
+}
+
+html.dark-theme table th,
+html.dark-theme table td {
+  border-color: #526164;
+}
+
+html.dark-theme table tr:nth-child(even) {
+  background: #293436;
+}
+
+html.dark-theme .note {
+  background: #3a3527;
+  border-left-color: #d5aa3c;
+}
+
+html.dark-theme .tip {
+  background: #263a31;
+  border-left-color: #61ad79;
+}
+
+html.dark-theme img.example-img {
+  border-color: #526164;
+}
+
+html.dark-theme footer {
+  color: #aab8b7;
+}

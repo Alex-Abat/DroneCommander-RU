@@ -480,16 +480,16 @@ const makecodeTheme = Blockly.Theme.defineTheme('makecode', {
 const makecodeDarkTheme = Blockly.Theme.defineTheme('makecodeDark', {
     base: makecodeTheme,
     componentStyles: {
-        workspaceBackgroundColour: "#181a1c",
-        toolboxBackgroundColour: "#24272a",
-        toolboxForegroundColour: "#f2f2f2",
-        flyoutBackgroundColour: "#2d3033",
-        flyoutForegroundColour: "#f2f2f2",
+        workspaceBackgroundColour: "#20292b",
+        toolboxBackgroundColour: "#293436",
+        toolboxForegroundColour: "#e2e9e8",
+        flyoutBackgroundColour: "#344043",
+        flyoutForegroundColour: "#e2e9e8",
         flyoutOpacity: 1,
-        scrollbarColour: "#686d72",
-        insertionMarkerColour: "#ffffff",
+        scrollbarColour: "#4b5a5c",
+        insertionMarkerColour: "#65cfc3",
         insertionMarkerOpacity: 0.35,
-        cursorColour: "#c7ccd1"
+        cursorColour: "#65cfc3"
     }
 });
 
