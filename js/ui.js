@@ -270,6 +270,7 @@ updateMediaSaveDirectoryControl();
 restoreMediaSaveDirectory();
 
 // Camera pointer and zoom controls
+// Right-drag orbits the camera; middle-click raises its angle and left-click resets the view.
 webglContainer.addEventListener('contextmenu', e => e.preventDefault());
 webglContainer.addEventListener('mousedown', e => {
     if (e.button === 2) isRightMouseDown = true;
@@ -573,8 +574,8 @@ document.getElementById('runBtn').addEventListener('click', () => {
     delay = 10;
     run = true;
 
-    // Flight commands return promises. Make user procedures asynchronous and add
-    // a short cooperative pause/checkpoint after each generated statement.
+    // Flight commands return promises. Make procedures async; Blockly emits one
+    // statement per line, so publish telemetry and yield between them for stops.
     code = code.replace(/\bfunction\b/g, 'async function');
     code = code.replace(/\n/g, `;\n  ${variableSnapshotCode}await sleep(delay);delay=10;if(run!=true)return;`);
     const wrappedCode = `
