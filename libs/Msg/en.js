@@ -540,6 +540,17 @@ Blockly.Msg.BKY_SAVE = "Save";
 
 Blockly.Msg.BKY_HELP = "Help";
 Blockly.Msg.BKY_SCENARIO = "Scenario";
+Blockly.Msg.BKY_SCENARIO_ADD = "Add scenario";
+Blockly.Msg.BKY_SCENARIO_EDIT = "Edit scenario";
+Blockly.Msg.BKY_SCENARIO_NAME = "Name";
+Blockly.Msg.BKY_SCENARIO_DATA = "Scenario data (JSON)";
+Blockly.Msg.BKY_SCENARIO_EDITOR = "Scenario editor";
+Blockly.Msg.BKY_SCENARIO_VISUAL_EDIT = "Open visual map editor";
+Blockly.Msg.BKY_SCENARIO_VISUAL_RETURNED = "Map data returned. Save the scenario in this tab to apply it.";
+Blockly.Msg.BKY_SCENARIO_POPUP_BLOCKED = "Allow pop-ups to open the visual editor in another tab.";
+Blockly.Msg.BKY_SCENARIO_CANCEL = "Cancel";
+Blockly.Msg.BKY_SCENARIO_INVALID = "Enter valid scenario JSON with an objects array.";
+Blockly.Msg.BKY_SCENARIO_STORAGE_ERROR = "Unable to save this scenario in browser storage.";
 Blockly.Msg.BKY_FILE_NAME = "noname";
 Blockly.Msg.BKY_SAVE_PROMPT = "File name:";
 Blockly.Msg.BKY_GRAPHICS = "Graphics";

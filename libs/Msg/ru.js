@@ -543,6 +543,17 @@ Blockly.Msg.BKY_SAVE = "Сохранить";
 
 Blockly.Msg.BKY_HELP = "Помощь";
 Blockly.Msg.BKY_SCENARIO = "Сценарий";
+Blockly.Msg.BKY_SCENARIO_ADD = "Добавить сценарий";
+Blockly.Msg.BKY_SCENARIO_EDIT = "Редактировать сценарий";
+Blockly.Msg.BKY_SCENARIO_NAME = "Название";
+Blockly.Msg.BKY_SCENARIO_DATA = "Данные сценария (JSON)";
+Blockly.Msg.BKY_SCENARIO_EDITOR = "Редактор сценариев";
+Blockly.Msg.BKY_SCENARIO_VISUAL_EDIT = "Открыть графический редактор карты";
+Blockly.Msg.BKY_SCENARIO_VISUAL_RETURNED = "Данные карты получены. Сохраните сценарий в этой вкладке.";
+Blockly.Msg.BKY_SCENARIO_POPUP_BLOCKED = "Разрешите всплывающие окна, чтобы открыть редактор в новой вкладке.";
+Blockly.Msg.BKY_SCENARIO_CANCEL = "Отмена";
+Blockly.Msg.BKY_SCENARIO_INVALID = "Введите корректный JSON сценария с массивом объектов.";
+Blockly.Msg.BKY_SCENARIO_STORAGE_ERROR = "Не удалось сохранить сценарий в браузере.";
 Blockly.Msg.BKY_FILE_NAME = "безымянный";
 Blockly.Msg.BKY_SAVE_PROMPT = "Имя файла:";
 Blockly.Msg.BKY_GRAPHICS = "Графика";

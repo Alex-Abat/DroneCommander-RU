@@ -218,6 +218,63 @@
         flex: 1;
         min-width: 0;
       }
+      #scenarioControls button {
+        flex: 0 0 34px;
+        width: 34px;
+        height: 34px;
+        margin: 0;
+        padding: 0;
+        font-size: 18px;
+      }
+      #scenarioEditorDialog {
+        width: min(680px, calc(100vw - 36px));
+        max-height: calc(100vh - 36px);
+        padding: 22px;
+        border: 1px solid var(--control-border);
+        border-radius: 6px;
+        color: var(--control-text);
+        background: var(--control-bg);
+      }
+      #scenarioEditorDialog::backdrop {
+        background: rgba(15, 27, 28, 0.55);
+      }
+      #scenarioEditorForm {
+        display: grid;
+        gap: 10px;
+      }
+      #scenarioEditorForm h2 {
+        margin: 0 0 4px;
+        font-size: 20px;
+      }
+      #scenarioEditorForm input,
+      #scenarioEditorForm textarea {
+        box-sizing: border-box;
+        width: 100%;
+        padding: 9px 10px;
+        border: 1px solid var(--control-border);
+        border-radius: 4px;
+        color: var(--control-text);
+        background: var(--control-bg);
+      }
+      #scenarioEditorForm textarea {
+        min-height: min(48vh, 420px);
+        resize: vertical;
+        font: 13px/1.45 monospace;
+      }
+      .scenario-editor-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+      #scenarioEditorStatus {
+        margin: 0;
+        color: var(--control-primary);
+      }
+      #scenarioEditorError {
+        margin: 0;
+        color: var(--control-danger-text);
+      }
       #darkThemeControl {
         display: inline-flex;
         align-items: center;

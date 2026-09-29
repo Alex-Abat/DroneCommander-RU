@@ -663,6 +663,14 @@ document.addEventListener('mouseup', () => {
 
 // Localization and application selectors
 const loadedLanguageFiles = new Set(['en']);
+const scenarioStorageKey = 'droneCommanderScenarios';
+let scenarioManifest = [];
+let savedScenarios = [];
+let availableScenarios = [];
+let editingScenarioId = null;
+let activeMapEditorDraft = null;
+const mapEditorDraftPrefix = 'droneCommanderMapEditorDraft:';
+const mapEditorResultPrefix = 'droneCommanderMapEditorResult:';
 
 function loadLanguageFile(lang, callback) {
     if (loadedLanguageFiles.has(lang)) {
@@ -688,6 +696,24 @@ function applyLocalizedStrings() {
     // Scenario selector
     const scenarioOpt = document.querySelector('#scenarioSelect option:first-child');
     if (scenarioOpt) scenarioOpt.text = Blockly.Msg.BKY_SCENARIO || 'Scenario';
+    const addScenarioBtn = document.getElementById('addScenarioBtn');
+    const addScenarioLabel = Blockly.Msg.BKY_SCENARIO_ADD || 'Add scenario';
+    addScenarioBtn.title = addScenarioLabel;
+    addScenarioBtn.setAttribute('aria-label', addScenarioLabel);
+    const editScenarioLabel = Blockly.Msg.BKY_SCENARIO_EDIT || 'Edit scenario';
+    document.getElementById('editScenarioBtn').title = editScenarioLabel;
+    document.getElementById('editScenarioBtn').setAttribute('aria-label', editScenarioLabel);
+    document.getElementById('scenarioNameLabel').textContent =
+        Blockly.Msg.BKY_SCENARIO_NAME || 'Name';
+    document.getElementById('scenarioDataLabel').textContent =
+        Blockly.Msg.BKY_SCENARIO_DATA || 'Scenario data (JSON)';
+    document.getElementById('cancelScenarioBtn').textContent =
+        Blockly.Msg.BKY_SCENARIO_CANCEL || 'Cancel';
+    document.getElementById('saveScenarioBtn').textContent = Blockly.Msg.BKY_SAVE || 'Save';
+    document.getElementById('scenarioEditorTitle').textContent =
+        Blockly.Msg.BKY_SCENARIO_EDITOR || 'Scenario editor';
+    document.getElementById('openVisualMapEditorBtn').textContent =
+        Blockly.Msg.BKY_SCENARIO_VISUAL_EDIT || 'Open visual map editor';
 
     // Graphics selector
     document.getElementById('graphicsSelect').title = Blockly.Msg.BKY_GRAPHICS || 'Graphics';
@@ -743,12 +769,145 @@ document.getElementById('languageSelect').addEventListener('change', function() 
 });
 
 document.getElementById('scenarioSelect').addEventListener('change', function() {
-    const selectedScenario = this.value;
-    loadScenario(selectedScenario);
+    const selectedScenario = availableScenarios.find(scenario => scenario.id === this.value);
+    document.getElementById('editScenarioBtn').disabled = !selectedScenario;
+    if (!selectedScenario) return;
+    loadScenario(selectedScenario.data || selectedScenario.file);
     setTimeout(() => {
         resetCameraView();
         resetScene();
     }, 500);
+});
+
+const scenarioEditorDialog = document.getElementById('scenarioEditorDialog');
+const scenarioNameInput = document.getElementById('scenarioNameInput');
+const scenarioDataInput = document.getElementById('scenarioDataInput');
+const scenarioEditorError = document.getElementById('scenarioEditorError');
+const scenarioEditorStatus = document.getElementById('scenarioEditorStatus');
+
+const getScenarioData = async scenario => {
+    if (scenario.data) return scenario.data;
+    const response = await fetch('backgrounds/' + scenario.file);
+    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+    return response.json();
+};
+
+const openScenarioEditor = async scenario => {
+    editingScenarioId = scenario ? scenario.id : null;
+    scenarioEditorError.hidden = true;
+    scenarioEditorStatus.hidden = true;
+    scenarioNameInput.value = scenario ? scenario.name : '';
+    try {
+        const data = scenario ? await getScenarioData(scenario) : {
+            groundTexture: 'grass.jpg',
+            hillHeight: 25,
+            objects: []
+        };
+        scenarioDataInput.value = JSON.stringify(data, null, 2);
+        scenarioEditorDialog.showModal();
+        scenarioNameInput.focus();
+    } catch (error) {
+        console.error('Unable to open the scenario editor:', error);
+    }
+};
+
+document.getElementById('addScenarioBtn').addEventListener('click', () => {
+    openScenarioEditor(null);
+});
+document.getElementById('editScenarioBtn').addEventListener('click', () => {
+    const scenario = availableScenarios.find(item =>
+        item.id === document.getElementById('scenarioSelect').value);
+    if (scenario) openScenarioEditor(scenario);
+});
+document.getElementById('cancelScenarioBtn').addEventListener('click', () => {
+    scenarioEditorDialog.close();
+});
+document.getElementById('openVisualMapEditorBtn').addEventListener('click', () => {
+    let data;
+    try {
+        data = JSON.parse(scenarioDataInput.value);
+    } catch (error) {
+        scenarioEditorError.textContent = Blockly.Msg.BKY_SCENARIO_INVALID ||
+            'Enter valid scenario JSON with an objects array.';
+        scenarioEditorError.hidden = false;
+        return;
+    }
+
+    const token = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const draftKey = mapEditorDraftPrefix + token;
+    localStorage.setItem(draftKey, JSON.stringify({
+        name: scenarioNameInput.value,
+        data,
+        language: document.documentElement.lang,
+        darkTheme: document.documentElement.classList.contains('dark-theme')
+    }));
+    localStorage.removeItem(mapEditorResultPrefix + token);
+    activeMapEditorDraft = token;
+    const editorWindow = window.open(`map-editor.html?draft=${encodeURIComponent(token)}`, '_blank');
+    if (!editorWindow) {
+        scenarioEditorStatus.textContent = Blockly.Msg.BKY_SCENARIO_POPUP_BLOCKED ||
+            'Allow pop-ups to open the visual editor in another tab.';
+        scenarioEditorStatus.hidden = false;
+    }
+});
+
+window.addEventListener('storage', event => {
+    if (!activeMapEditorDraft || event.key !== mapEditorResultPrefix + activeMapEditorDraft ||
+        !event.newValue) return;
+    try {
+        const result = JSON.parse(event.newValue);
+        if (!result.data || typeof result.data !== 'object' || Array.isArray(result.data)) return;
+        scenarioNameInput.value = result.name || scenarioNameInput.value;
+        scenarioDataInput.value = JSON.stringify(result.data, null, 2);
+        scenarioEditorError.hidden = true;
+        scenarioEditorStatus.textContent = Blockly.Msg.BKY_SCENARIO_VISUAL_RETURNED ||
+            'Map data returned. Save the scenario in this tab to apply it.';
+        scenarioEditorStatus.hidden = false;
+        localStorage.removeItem(mapEditorDraftPrefix + activeMapEditorDraft);
+    } catch (error) {
+        console.error('Unable to receive edited map data:', error);
+    }
+});
+document.getElementById('scenarioEditorForm').addEventListener('submit', event => {
+    event.preventDefault();
+    let data;
+    try {
+        data = JSON.parse(scenarioDataInput.value);
+        if (!data || typeof data !== 'object' || Array.isArray(data) ||
+            (data.objects !== undefined && !Array.isArray(data.objects)) ||
+            (data.groundTexture !== undefined && typeof data.groundTexture !== 'string') ||
+            (data.hillHeight !== undefined && !Number.isFinite(data.hillHeight))) {
+            throw new Error('Invalid scenario structure');
+        }
+    } catch (error) {
+        scenarioEditorError.textContent = Blockly.Msg.BKY_SCENARIO_INVALID ||
+            'Enter valid scenario JSON with an objects array.';
+        scenarioEditorError.hidden = false;
+        return;
+    }
+
+    const id = editingScenarioId || `custom:${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const scenario = {
+        id,
+        name: scenarioNameInput.value.trim(),
+        data
+    };
+    if (!scenario.name) {
+        scenarioNameInput.focus();
+        return;
+    }
+    savedScenarios = savedScenarios.filter(item => item.id !== id);
+    savedScenarios.push(scenario);
+    try {
+        localStorage.setItem(scenarioStorageKey, JSON.stringify(savedScenarios));
+    } catch (error) {
+        scenarioEditorError.textContent = Blockly.Msg.BKY_SCENARIO_STORAGE_ERROR ||
+            'Unable to save this scenario in browser storage.';
+        scenarioEditorError.hidden = false;
+        return;
+    }
+    scenarioEditorDialog.close();
+    renderScenarioList(id);
 });
 
 document.getElementById('graphicsSelect').addEventListener('change', function() {
@@ -781,15 +940,41 @@ function loadScenarioList() {
     fetch('backgrounds/list.json')
         .then(response => response.json())
         .then(data => {
-            const scenarioSelect = document.getElementById('scenarioSelect');
-            scenarioSelect.innerHTML = '<option value=""></option>';
-            if (scenarioSelect.options[0]) scenarioSelect.options[0].text = Blockly.Msg.BKY_SCENARIO || 'Scenario';
-            data.forEach(scenario => {
-                const option = document.createElement('option');
-                option.value = scenario.file;
-                option.text = scenario.name;
-                scenarioSelect.appendChild(option);
-            });
+            scenarioManifest = data;
+            try {
+                const stored = JSON.parse(localStorage.getItem(scenarioStorageKey) || '[]');
+                savedScenarios = Array.isArray(stored) ? stored : [];
+            } catch (error) {
+                savedScenarios = [];
+                console.warn('Unable to read saved scenarios:', error);
+            }
+            renderScenarioList();
         })
         .catch(err => console.error('Unable to load the scenario list:', err));
+}
+
+function renderScenarioList(selectedId = '') {
+    const scenarioSelect = document.getElementById('scenarioSelect');
+    const builtInScenarios = scenarioManifest.map(scenario => {
+        const id = `builtin:${scenario.file}`;
+        const saved = savedScenarios.find(item => item.id === id);
+        return saved || { id, name: scenario.name, file: scenario.file };
+    });
+    const customScenarios = savedScenarios.filter(scenario => scenario.id.startsWith('custom:'));
+    availableScenarios = [...builtInScenarios, ...customScenarios];
+
+    scenarioSelect.innerHTML = '';
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = Blockly.Msg.BKY_SCENARIO || 'Scenario';
+    scenarioSelect.appendChild(placeholder);
+    availableScenarios.forEach(scenario => {
+        const option = document.createElement('option');
+        option.value = scenario.id;
+        option.textContent = scenario.name;
+        scenarioSelect.appendChild(option);
+    });
+    scenarioSelect.value = selectedId;
+    document.getElementById('editScenarioBtn').disabled = !selectedId;
+    if (selectedId) scenarioSelect.dispatchEvent(new Event('change'));
 }

@@ -522,11 +522,13 @@ function loadScenario(file) {
     groundMeshes = [];
     collectCollisionMeshes(scene);
 
-    fetch('backgrounds/' + file)
-        .then(response => {
+    const scenarioData = typeof file === 'string' ?
+        fetch('backgrounds/' + file).then(response => {
             if (!response.ok) throw new Error(`HTTP error ${response.status}`);
             return response.json();
-        })
+        }) : Promise.resolve(file);
+
+    scenarioData
         .then(data => {
             // Terrain
             const textureName = data.groundTexture || 'grass.jpg';

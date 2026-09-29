@@ -42,6 +42,8 @@
             <select id="scenarioSelect">
               <option value=""></option>
             </select>
+            <button type="button" id="addScenarioBtn" aria-label="Add scenario" title="Add scenario">+</button>
+            <button type="button" id="editScenarioBtn" aria-label="Edit scenario" title="Edit scenario" disabled>✎</button>
             <select id="graphicsSelect">
               <option value="performance"></option>
               <option value="balanced"></option>
@@ -108,6 +110,23 @@
         </div>
       </div>
     </div>
+
+    <dialog id="scenarioEditorDialog">
+      <form id="scenarioEditorForm">
+        <h2 id="scenarioEditorTitle"></h2>
+        <label for="scenarioNameInput" id="scenarioNameLabel"></label>
+        <input type="text" id="scenarioNameInput" required maxlength="80">
+        <label for="scenarioDataInput" id="scenarioDataLabel"></label>
+        <textarea id="scenarioDataInput" required spellcheck="false"></textarea>
+        <p id="scenarioEditorError" role="alert" hidden></p>
+        <p id="scenarioEditorStatus" role="status" hidden></p>
+        <div class="scenario-editor-actions">
+          <button type="button" id="cancelScenarioBtn"></button>
+          <button type="button" id="openVisualMapEditorBtn"></button>
+          <button type="submit" id="saveScenarioBtn"></button>
+        </div>
+      </form>
+    </dialog>
     
     <script src="js/blockly.js"></script>
     <script src="js/drone-commands.js"></script>
