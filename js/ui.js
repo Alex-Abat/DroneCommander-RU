@@ -769,7 +769,8 @@ document.getElementById('helpBtn').addEventListener('click', function() {
         ar: 'doc/help-ar.html',
         zh: 'doc/help-zh.html',
         ko: 'doc/help-ko.html',
-        ja: 'doc/help-ja.html'
+        ja: 'doc/help-ja.html',
+        ru: 'doc/help-ru.html'
     };
     const helpPage = helpFiles[lang] || 'doc/help.html';
     window.open(helpPage, '_blank');

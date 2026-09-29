@@ -1,47 +1,50 @@
-# Drone Commander
+# Drone Commander RU
 
-<img width="1920" height="1041" alt="immagine" src="https://github.com/user-attachments/assets/f2b1d680-b3b3-4c32-b3ae-24066e83fa8e" />
+![Drone Commander RU](screenshots/overview.png)
 
+Drone Commander — интерактивное веб-приложение для программирования и симуляции полёта дрона с помощью Blockly и Three.js. Соберите план полёта из блоков, запустите программу и наблюдайте за дроном в трёхмерной среде.
 
-Drone Commander is an interactive browser app for programming and simulating drone flight with Blockly and Three.js. Build a flight plan with blocks, run it, and watch the drone move inside a 3D scene.
+Данный репозиторий содержит русскую локализацию интерфейса оригинального проекта Drone Commander.
+Переведены элементы интерфейса, названия команд и другие текстовые элементы программы.
+Проект не является официальной русской версией Drone Commander.
 
-## Online Demo
+## Демо
 
-Open the hosted version:
+Откройте веб-версию:
 
 https://vroby65.github.io/DroneCommander/
 
-## Features
+## Возможности
 
-- **Visual programming** with Blockly blocks for logic, loops, math, variables, functions, flow, sensors, and drone commands.
-- **3D simulation** powered by Three.js, with terrain-aware takeoff and landing behavior.
-- **Collision emergency handling** that stops the Blockly program and rapidly lands the drone at its last safe position.
-- **Drone commands** for take off, land, photos, video recording, set/change altitude, set/change angle, walk, walk climbing, slide, absolute/relative 3D movement, smooth curved flight, return to base, wait, smoke trail, and speed control.
-- **Smooth curve handling** with coordinate-based curved flight that leaves the drone direction unchanged.
-- **Sensor blocks** for keyboard input, X/Z position, altitude, direction, and speed.
-- **Scenarios**: flight field, urban track, metropolis, and tropical island.
-- **Graphics profiles**: Performance, Balanced, and Quality.
-- **On-board drone camera** with a live picture-in-picture view from the nose of the drone. The camera follows yaw, pitch, and roll and supports timestamped PNG photo and video downloads.
-- **Light and dark themes** for the full interface and Blockly workspace, with the selected theme remembered in browser local storage.
-- **Scratch-style block zoom** with controls to enlarge, reduce, or reset the Blockly workspace, plus mouse-wheel and pinch zoom.
-- **Program management** with New, Save, Load, autosave to browser local storage, and remembered file names.
-- **Ryze/DJI Tello execution** through the companion [Drone Commander Tello Driver](https://github.com/vroby65/DroneCommander-Driver).
-- **Multilingual UI and help** in English, Italian, French, German, Spanish, Portuguese, Arabic, Simplified Chinese, Korean, and Japanese.
-- **Resizable layout** with a Blockly editor, 3D viewer, and status panel with live program-variable values.
+- **Визуальное программирование** с блоками Blockly для логики, циклов, математики, переменных, функций, датчиков и команд дрона.
+- **Трёхмерная симуляция** на Three.js с учётом рельефа при взлёте и посадке.
+- **Аварийная обработка столкновений**: программа Blockly останавливается, а дрон быстро приземляется в последней безопасной точке.
+- **Команды дрона**: взлететь, приземлиться, сделать фото, начать запись, сохранить запись, задать или изменить высоту и угол, двигаться, двигаться вперёд с подъёмом, сместиться, перейти в абсолютную точку, переместиться относительно текущего направления, пролететь по кривой, вернуться на базу, ждать, включить дым и задать скорость.
+- **Плавный полёт по кривой**: траектория задаётся координатами и не меняет направление дрона.
+- **Блоки датчиков**: нажатие клавиш, координаты X/Z, высота, направление и скорость.
+- **Сценарии**: лётное поле, городская трасса, мегаполис и тропический остров.
+- **Профили графики**: производительность, сбалансированный и высокое качество.
+- **Бортовая камера** с окном предварительного просмотра от носа дрона. Камера повторяет поворот, тангаж и крен; фото PNG и видео можно скачать с отметкой времени.
+- **Светлая и тёмная темы** интерфейса и рабочей области Blockly. Выбранная тема сохраняется в локальном хранилище браузера.
+- **Масштабирование блоков**: кнопки увеличения, уменьшения и сброса масштаба, прокрутка колёсиком мыши и жест масштабирования.
+- **Управление программами**: создать, сохранить, загрузить; автоматическое сохранение в браузере и запоминание имени файла.
+- **Полёт на Ryze/DJI Tello** через сопутствующую программу [Drone Commander Tello Driver](https://github.com/vroby65/DroneCommander-Driver).
+- **Многоязычный интерфейс и справка**: английский, итальянский, французский, немецкий, испанский, португальский, русский, арабский, упрощённый китайский, корейский и японский языки.
+- **Изменяемая компоновка**: редактор Blockly, окно 3D-сцены и панель телеметрии со значениями переменных программы.
 
-## Screenshots
+## Скриншоты
 
-### Take Off And Land
+### Взлёт и посадка
 
-![Take off and land program](screenshots/takeoff-land.png)
+![Программа взлёта и посадки](screenshots/takeoff-land.png)
 
-### Speed And Smoke Trail
+### Скорость и дымовой след
 
-![Speed and smoke trail program](screenshots/smoke-flight.png)
+![Программа со скоростью и дымовым следом](screenshots/smoke-flight.png)
 
-## Run Locally
+## Запуск локально
 
-Clone the repository and serve it with any static HTTP server:
+Клонируйте репозиторий и запустите любой статический HTTP-сервер:
 
 ```sh
 git clone https://github.com/vroby65/DroneCommander.git
@@ -49,83 +52,107 @@ cd DroneCommander
 python3 -m http.server 8000
 ```
 
-Then open:
+Затем откройте в браузере:
 
 ```text
 http://127.0.0.1:8000/
 ```
 
-Using an HTTP server is recommended because the app loads scenarios, textures, models, sounds, and help pages from local files.
+Рекомендуется запускать приложение через HTTP-сервер: оно загружает сценарии, текстуры, модели, звуки и страницы справки из локальных файлов.
 
-## Usage
+## Использование
 
-1. Drag a **Start** block into the Blockly workspace.
-2. Attach drone blocks such as **take off**, **set altitude**, **walk**, **walk climbing**, **go to**, **move by**, **curve abs**, **curve**, **take a photo**, **start recording**, **save recording**, **return to base**, **change angle**, and **land**.
-3. Click the green play button to run the program in the 3D viewer. When the program finishes, the drone remains at its final position; click play again to reset and rerun it, or click stop to reset it without starting a new run.
-4. Use the panel directly below the 3D viewer to inspect or adjust X, Z, altitude, direction, and flight status. During execution it also lists every Blockly variable and its current value, one per line.
-5. Enable **Camera preview** in the 3D viewer toolbar to show the on-board view in the top-left corner of the main scene. The preview remains available when the viewer is fullscreen.
-6. Add a **take a photo** block to download a timestamped PNG from the on-board camera at that point in the program. This works even when the preview is hidden.
-7. Place **start recording** before the actions to film, then use **save recording** to stop the camera and download the timestamped video. Recording also works with the preview hidden; stopping the program before saving cancels the active recording.
-8. Select **Dark theme** at the top-right of the Blockly panel to switch the entire interface between light and dark modes.
-9. Use the Blockly zoom controls to enlarge, reduce, or reset the block size. You can also zoom with the mouse wheel or a pinch gesture.
-10. Use **Save** and **Load** to export or import Blockly XML programs.
-11. Switch scenario or graphics profile from the toolbar when needed.
+1. Перетащите блок **Начало** в рабочую область Blockly.
+2. Добавьте команды дрона, например **взлететь**, **задать высоту**, **двигаться на**, **двигаться вперёд с подъёмом**, **перейти в**, **сместиться на**, **пролететь по кривой abs**, **пролететь по кривой**, **сделать фото**, **начать запись**, **сохранить запись**, **вернуться на базу**, **изменить угол на** и **приземлиться**.
+3. Нажмите зелёную кнопку запуска, чтобы выполнить программу в 3D-сцене. После завершения дрон останется в конечной точке. Нажмите запуск ещё раз, чтобы сбросить дрон и повторить программу, или кнопку остановки, чтобы сбросить его без повторного запуска.
+4. В панели под 3D-сценой просматривайте или изменяйте координаты X и Z, высоту, направление и состояние полёта. Во время выполнения там также отображаются все переменные Blockly и их текущие значения.
+5. Включите флажок **Предпросмотр камеры** на панели 3D-сцены, чтобы показать вид с бортовой камеры в левом верхнем углу. Предпросмотр доступен и в полноэкранном режиме.
+6. Добавьте блок **сделать фото**, чтобы сохранить PNG-снимок с бортовой камеры в нужный момент программы. Предпросмотр для этого включать не обязательно.
+7. Перед снимаемыми действиями добавьте блок **начать запись**, а после них — **сохранить запись**. Запись работает и при скрытом предпросмотре; если остановить программу до сохранения, запись будет отменена.
+8. Выберите **Тёмная тема** в верхней части редактора Blockly, чтобы переключить оформление всего интерфейса.
+9. Масштабируйте блоки кнопками управления масштабом Blockly, колёсиком мыши или жестом масштабирования.
+10. Нажмите **Сохранить** или **Загрузить**, чтобы экспортировать или импортировать программу Blockly в формате XML.
+11. При необходимости выберите сценарий или профиль графики на панели инструментов.
 
-## On-board Camera
+## Бортовая камера
 
-The secondary camera renders the same Three.js environment from a mounting point just beyond the drone nose. Because its position and orientation are calculated in the drone's local coordinate space, the image follows turns, climbs, dives, and banking maneuvers.
+Дополнительная камера отображает ту же среду Three.js из точки крепления перед носом дрона. Её положение и ориентация рассчитываются в локальных координатах дрона, поэтому изображение повторяет повороты, набор и снижение высоты, а также крен.
 
-The preview is overlaid in the top-left corner of the main 3D canvas and occupies one eighth of its area, so it does not affect panel sizing or the surrounding layout. It can be shown or hidden with the **Camera preview** checkbox in the viewer toolbar, and the selected visibility is remembered in browser local storage. The preview remains visible in fullscreen mode. Its dedicated render target supplies full camera frames to the **take a photo**, **start recording**, and **save recording** blocks.
+Предпросмотр расположен в левом верхнем углу основной 3D-сцены и занимает одну восьмую её площади, не влияя на размеры панелей и компоновку. Его можно включать и выключать флажком **Предпросмотр камеры**; настройка сохраняется в локальном хранилище браузера. Предпросмотр остаётся видимым в полноэкранном режиме. Отдельная цель рендеринга камеры используется блоками **сделать фото**, **начать запись** и **сохранить запись**.
 
-Video recording targets 30 fps at a 4:3 resolution up to 960×720. Drone Commander selects WebM (VP9 or VP8) or MP4 according to browser support. The **save recording** block terminates the recording and downloads the resulting timestamped file.
+Видео записывается с частотой 30 кадров/с и соотношением сторон 4:3, с разрешением до 960×720. В зависимости от поддержки браузера приложение выбирает WebM (VP9 или VP8) либо MP4. Блок **сохранить запись** завершает запись и скачивает видеофайл с отметкой времени.
 
-The telemetry panel includes a **Photo/video folder** setting. In browsers that support writable directory selection, choose a folder once and photos and completed recordings are saved directly into it. The selected directory handle is remembered; the browser may ask for permission again after a restart. For privacy the browser exposes only the folder name, not its absolute path. Unsupported browsers, missing permissions, and write errors safely fall back to the browser's normal download behavior.
+В панели телеметрии есть настройка **Папка фото/видео**. В браузерах с поддержкой выбора папки для записи можно один раз выбрать каталог, куда будут сохраняться фотографии и готовые видеозаписи. Выбранная папка запоминается; после перезапуска браузер может повторно запросить разрешение. Из соображений конфиденциальности браузер показывает только имя папки, а не полный путь. Если браузер не поддерживает эту функцию, нет разрешения или возникла ошибка записи, приложение использует обычную загрузку файлов.
 
-Firefox does not currently support the [`showDirectoryPicker()`](https://developer.mozilla.org/en-US/docs/Web/API/Window/showDirectoryPicker) API required by this setting, so Drone Commander hides the folder selector and uses normal downloads there. Firefox users can choose a global download folder, or ask where to save each file, under **Settings → General → Files and Applications → Downloads**. This browser setting applies to all downloads, not only to Drone Commander.
+Firefox пока не поддерживает API [`showDirectoryPicker()`](https://developer.mozilla.org/en-US/docs/Web/API/Window/showDirectoryPicker), необходимый для выбора папки. Поэтому в Firefox выбор папки скрыт и файлы скачиваются обычным способом. Папку загрузок или запрос места сохранения каждого файла можно настроить в Firefox в разделе **Настройки → Основные → Файлы и приложения → Загрузки**. Эта настройка браузера применяется ко всем загрузкам, а не только к Drone Commander.
 
-## Collision Emergency Handling
+## Аварийная посадка при столкновении
 
-Every commanded flight position is checked against the terrain and scenery objects. If a trajectory would place the drone inside either one, Drone Commander immediately cancels the active command and command queue, stops the Blockly program, and discards any active camera recording.
+Каждая заданная точка полёта проверяется на пересечение с рельефом и объектами сцены. Если траектория ведёт внутрь препятствия, Drone Commander немедленно отменяет текущую команду и очередь команд, останавливает программу Blockly и отменяет активную видеозапись.
 
-The drone returns to its last collision-free position and performs a 300 ms emergency landing onto the surface below it. Pitch and roll are leveled, the propellers and engine sound stop at touchdown, and the **Run** button becomes available again. Normal takeoff and landing use terrain-aware safe altitudes and do not trigger the collision emergency.
+Дрон возвращается в последнюю точку без столкновений и выполняет аварийную посадку на поверхность под ним за 300 мс. Тангаж и крен выравниваются, после касания земли останавливаются пропеллеры и звук двигателя, после чего кнопка запуска снова становится доступной. Обычные взлёт и посадка учитывают рельеф и не запускают аварийную процедуру.
 
-## Fly On A Real Tello
+## Полёт на настоящем Tello
 
-The companion [Drone Commander Tello Driver](https://github.com/vroby65/DroneCommander-Driver) is a native Go/Fyne application that loads the XML programs saved by Drone Commander and executes them on a Ryze/DJI Tello through Tello SDK 2.0.
+Сопутствующая программа [Drone Commander Tello Driver](https://github.com/vroby65/DroneCommander-Driver) — приложение на Go/Fyne. Оно загружает XML-файлы, сохранённые в Drone Commander, и выполняет программы на Ryze/DJI Tello через Tello SDK 2.0.
 
-Create and test the program in this simulator, save it as an XML file, then open it in the driver. Test it again in the driver's offline simulation mode before connecting to the drone's `TELLO-...` Wi-Fi network. For indoor flight, the driver interprets one Drone Commander unit as one centimeter and enforces the Tello movement limits documented in its README.
+Создайте и проверьте программу в симуляторе, сохраните её в XML и откройте в драйвере. Перед подключением к сети Wi-Fi дрона `TELLO-...` повторно проверьте программу в автономном режиме симуляции драйвера. Для полётов в помещении драйвер считает одну единицу Drone Commander равной одному сантиметру и ограничивает перемещения согласно лимитам Tello, описанным в README драйвера.
 
-## Relative Movement Coordinates
+## Относительные координаты перемещения
 
-The **move by** block interprets X/Y/Z relative to the drone's current direction. X moves right/left, Y moves up/down, and Z moves forward/backward. Changing the drone angle rotates the X/Z movement axes while leaving Y vertical.
+Блок **сместиться на** задаёт X/Y/Z относительно текущего направления дрона. X перемещает вправо или влево, Y — вверх или вниз, Z — вперёд или назад. Поворот дрона изменяет оси X и Z, а ось Y всегда остаётся вертикальной.
 
-## Curved Flight Notes
+## Полёт по кривой
 
-The **curve** and **curve abs** blocks fly through the current position, an intermediate point, and a destination point. Curves are interpolated as smooth arcs where possible and do not change the drone direction. The arc is calculated in the 3D plane defined by the three points, so circular paths can be horizontal, vertical, or tilted.
+Блоки **пролететь по кривой** и **пролететь по кривой abs** прокладывают путь через текущую позицию, промежуточную точку и конечную точку. По возможности траектория сглаживается дугой и не меняет направление дрона. Дуга рассчитывается в трёхмерной плоскости, заданной этими точками, поэтому путь может быть горизонтальным, вертикальным или наклонным.
 
-The drone banks while moving along a curve, so consecutive curve commands transition without separate pauses for tilting and straightening the drone.
+Во время движения по кривой дрон наклоняется в повороте. Поэтому последовательные команды полёта по кривой выполняются плавно, без отдельных пауз на наклон и выравнивание.
 
-For **curve abs**, both the intermediate point and destination use absolute program coordinates. For relative **curve** blocks, X/Y/Z is an offset from the current position, while XD/YD/ZD is an offset from that intermediate point. Both offsets rotate with the drone's current direction: Z is forward/backward and X is right/left.
+В блоке **пролететь по кривой abs** промежуточная и конечная точки задаются абсолютными координатами программы. В блоке **пролететь по кривой** координаты X/Y/Z задают смещение от текущей позиции, а XD/YD/ZD — смещение от промежуточной точки. Оба смещения поворачиваются вместе с дроном: Z задаёт движение вперёд/назад, X — вправо/влево.
 
-## Project Structure
+## Структура проекта
 
-- `index.html` - Application shell, layout, and ordered script loading.
-- `js/blockly.js` - Custom Blockly blocks, JavaScript generators, light/dark Blockly themes, toolbox setup, and workspace persistence.
-- `js/drone-commands.js` - Three.js simulation, main and on-board cameras, command queue, flight commands, scenarios, collision handling, audio, and rendering.
-- `js/ui.js` - Camera controls, theme switching, status inputs, live program-variable monitoring, program actions, layout, localization, and selectors.
-- `js/app.js` - Startup sequence that initializes localization, Blockly, Three.js, and the render loop.
-- `doc/` - Help pages in supported languages.
-- `backgrounds/` - Scenario definitions.
-- `models/` - Drone and scene models.
-- `textures/` - Terrain, sky, and object textures.
-- `sounds/` - Drone audio assets.
-- `libs/` - Vendored Blockly and Three.js libraries.
-- `screenshots/` - README screenshots generated from the current app.
+- `index.html` — каркас приложения, компоновка и порядок загрузки скриптов.
+- `js/blockly.js` — пользовательские блоки Blockly, генераторы JavaScript, светлая и тёмная темы редактора, настройка панели блоков и сохранение рабочей области.
+- `js/drone-commands.js` — симуляция Three.js, основная и бортовая камеры, очередь команд, управление полётом, сценарии, обработка столкновений, звук и отрисовка.
+- `js/ui.js` — управление камерой, переключение тем, поля телеметрии, отслеживание переменных, действия с программами, компоновка, локализация и списки выбора.
+- `js/app.js` — запуск приложения: локализация, Blockly, Three.js и цикл отрисовки.
+- `doc/` — справочные страницы на поддерживаемых языках.
+- `backgrounds/` — описания сценариев.
+- `models/` — модели дрона и объектов сцены.
+- `textures/` — текстуры земли, неба и объектов.
+- `sounds/` — звуковые файлы дрона.
+- `libs/` — библиотеки Blockly и Three.js.
+- `screenshots/` — скриншоты приложения для README.
 
-## License
+## Оригинальный проект
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+Оригинальный проект:
 
-## Contributing
+https://github.com/vroby65/DroneCommander
 
-Contributions are welcome. Open an issue or pull request to suggest fixes, new blocks, new scenarios, translations, or documentation improvements.
+Данный репозиторий является производной работой на основе оригинального проекта.
+
+## Автор локализации
+
+Русская локализация:
+
+Alex-Abat, 2026
+
+## Лицензия
+
+Оригинальный проект распространяется на условиях MIT License.
+
+Copyright (c) 2025 vroby65
+
+Полный текст лицензии находится в файле [LICENSE](LICENSE).
+
+Данный репозиторий сохраняет условия лицензирования оригинального проекта.
+
+## Благодарности
+
+Спасибо автору оригинального проекта за создание Drone Commander.
+
+* Original project: https://github.com/vroby65/DroneCommander
+* Original author: vroby65
+* License: MIT
