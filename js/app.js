@@ -2,7 +2,7 @@
 // block labels and toolbox category names capture the active translation.
 
 window.addEventListener('load', () => {
-    const savedLang = localStorage.getItem('selectedLanguage') || 'en';
+    const savedLang = localStorage.getItem('selectedLanguage') || 'ru';
     document.documentElement.lang = savedLang;
     document.documentElement.dir = savedLang === 'ar' ? 'rtl' : 'ltr';
     document.getElementById('languageSelect').value = savedLang;

@@ -12,7 +12,7 @@ Drone Commander — интерактивное веб-приложение дл�
 
 Откройте веб-версию:
 
-https://vroby65.github.io/DroneCommander/
+https://alex-abat.github.io/DroneCommander-RU/
 
 ## Возможности
 
