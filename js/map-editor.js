@@ -6,8 +6,7 @@ const language = draft && draft.language === 'ru' ? 'ru' : 'en';
 const translations = {
     ru: {
         name: 'Название карты',
-        apply: 'Передать в приложение',
-        close: 'Закрыть вкладку',
+        apply: 'Сохранить сценарий',
         objects: 'Объекты карты',
         model: 'Добавить объект',
         add: 'Добавить',
@@ -24,6 +23,11 @@ const translations = {
         scale: 'Масштаб',
         remove: 'Удалить объект',
         sent: 'Изменения переданы в основную вкладку.',
+        saved: 'Сценарий сохранён. Он выбран в основной вкладке.',
+        nameRequired: 'Введите название сценария.',
+        storageError: 'Не удалось сохранить сценарий в хранилище браузера.',
+        pad: 'Взлётная площадка',
+        padOnly: 'На карте может быть только одна взлётная площадка.',
         noParent: 'Эта вкладка открыта без черновика из приложения.',
         missingDraft: 'Черновик карты не найден. Вернитесь в приложение и откройте редактор ещё раз.',
         models: {
@@ -33,7 +37,8 @@ const translations = {
             'isoletta.obj': 'Островок',
             '2cv_car_yellow_0430162344_refine.obj': 'Автомобиль',
             'little_house_with_a_g_0430133251_refine.obj': 'Дом',
-            'panchina.obj': 'Скамейка'
+            'panchina.obj': 'Скамейка',
+            'takeoff_pad': 'Взлётная площадка'
         },
         textures: {
             'grass.jpg': 'Трава',
@@ -45,8 +50,7 @@ const translations = {
     },
     en: {
         name: 'Map name',
-        apply: 'Send to app',
-        close: 'Close tab',
+        apply: 'Save scenario',
         objects: 'Map objects',
         model: 'Add object',
         add: 'Add',
@@ -63,6 +67,11 @@ const translations = {
         scale: 'Scale',
         remove: 'Remove object',
         sent: 'Changes sent to the main tab.',
+        saved: 'Scenario saved and selected in the main tab.',
+        nameRequired: 'Enter a scenario name.',
+        storageError: 'Unable to save the scenario in browser storage.',
+        pad: 'Takeoff pad',
+        padOnly: 'Only one takeoff pad can be placed on a map.',
         noParent: 'This tab was opened without a draft from the app.',
         missingDraft: 'Map draft not found. Return to the app and open the editor again.',
         models: {
@@ -72,7 +81,8 @@ const translations = {
             'isoletta.obj': 'Small island',
             '2cv_car_yellow_0430162344_refine.obj': 'Car',
             'little_house_with_a_g_0430133251_refine.obj': 'House',
-            'panchina.obj': 'Bench'
+            'panchina.obj': 'Bench',
+            'takeoff_pad': 'Takeoff pad'
         },
         textures: {
             'grass.jpg': 'Grass',
@@ -99,12 +109,14 @@ const modelCatalog = [
         material: 'little_house_with_a_g_0430133251_refine.mtl',
         scale: 50
     },
-    { model: 'panchina.obj', material: 'panchina.mtl', scale: 15 }
+    { model: 'panchina.obj', material: 'panchina.mtl', scale: 15 },
+    { model: 'takeoff_pad', material: '', scale: 1 }
 ];
 const textureCatalog = ['grass.jpg', 'grass2.jpg', 'sand.jpg', 'sea.jpg', 'town.jpg'];
 const defaultData = {
     groundTexture: 'grass.jpg',
     hillHeight: 25,
+    terrainSeed: 1,
     objects: []
 };
 const mapNameInput = document.getElementById('mapNameInput');
@@ -116,6 +128,10 @@ const transformFields = document.getElementById('transformFields');
 const emptySelection = document.getElementById('emptySelection');
 const modelCache = new Map();
 let sourceData = draft && draft.data && typeof draft.data === 'object' ? draft.data : defaultData;
+sourceData = {
+    ...sourceData,
+    terrainSeed: Number.isInteger(Number(sourceData.terrainSeed)) ? Number(sourceData.terrainSeed) : 1
+};
 let objects = Array.isArray(sourceData.objects) ? sourceData.objects.map(normalizeObject) : [];
 let selectedIndex = -1;
 let roots = [];
@@ -129,12 +145,15 @@ let animationFrame;
 let orbitTheta = Math.PI / 4;
 let orbitPhi = 0.95;
 let orbitRadius = 1700;
+const cameraTarget = new THREE.Vector3();
 let isOrbiting = false;
+let isPanning = false;
 let isDraggingObject = false;
 let pointerMoved = false;
 let pointerStart = { x: 0, y: 0 };
 let dragOffset = new THREE.Vector3();
 const raycaster = new THREE.Raycaster();
+const terrainRaycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 const intersectionPoint = new THREE.Vector3();
@@ -164,7 +183,6 @@ function setLocalizedText() {
     document.body.classList.toggle('dark-theme', Boolean(draft && draft.darkTheme));
     document.getElementById('mapNameLabel').textContent = text.name;
     document.getElementById('applyMapBtn').textContent = text.apply;
-    document.getElementById('closeMapBtn').textContent = text.close;
     document.getElementById('objectsHeading').textContent = text.objects;
     document.getElementById('modelSelectLabel').textContent = text.model;
     document.getElementById('addObjectBtn').textContent = text.add;
@@ -210,17 +228,27 @@ function populateSelects() {
     mapNameInput.value = draft && draft.name ? draft.name : '';
 }
 
-function createTerrainGeometry(height) {
+function createSeededRandom(seed) {
+    let state = seed >>> 0;
+    if (!state) state = 1;
+    return () => {
+        state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+        return state / 4294967296;
+    };
+}
+
+function createTerrainGeometry(height, seed = 1) {
     const geometry = new THREE.PlaneGeometry(4100, 4100, 32, 32);
     const vertices = geometry.vertices;
+    const random = createSeededRandom(seed);
     for (let index = 0; index < vertices.length; index++) {
         const vertex = vertices[index];
         const distance = Math.sqrt(vertex.x * vertex.x + vertex.y * vertex.y);
         if (distance < 200) {
             vertex.z = 0;
         } else {
-            const rx = Math.random() * 0.999 + 0.001;
-            const ry = Math.random() * 0.999 + 0.001;
+            const rx = random() * 0.999 + 0.001;
+            const ry = random() * 0.999 + 0.001;
             vertex.z = height * Math.sin(vertex.x * rx) * Math.cos(vertex.y * ry);
         }
     }
@@ -250,9 +278,14 @@ function setGroundTexture(fileName) {
 function updateTerrain() {
     const height = Number(document.getElementById('hillHeightInput').value) || 0;
     const oldGeometry = ground.geometry;
-    ground.geometry = createTerrainGeometry(height);
+    ground.geometry = createTerrainGeometry(height, sourceData.terrainSeed);
     oldGeometry.dispose();
     setGroundTexture(document.getElementById('textureSelect').value);
+    roots.forEach((root, index) => {
+        if (!root || !root.userData.snapToTerrain) return;
+        snapObjectToTerrain(root, objects[index]);
+        applyObjectTransform(index);
+    });
 }
 
 function loadModelTemplate(objectData) {
@@ -273,17 +306,32 @@ function loadModelTemplate(objectData) {
     return promise;
 }
 
-async function createObjectRoot(objectData, index) {
+async function createObjectRoot(objectData, index, snapToTerrain = false) {
     const root = new THREE.Group();
-    const template = objectData.material ? await loadModelTemplate(objectData) : null;
-    if (template) {
-        root.add(template.clone(true));
-    } else {
-        const placeholder = new THREE.Mesh(
-            new THREE.BoxGeometry(18, 18, 18),
-            new THREE.MeshLambertMaterial({ color: 0xd46b45 })
+    if (objectData.model === 'takeoff_pad') {
+        const texture = await loadTakeoffPadTexture();
+        const pad = new THREE.Mesh(
+            new THREE.PlaneGeometry(16, 16),
+            new THREE.MeshLambertMaterial({
+                map: texture,
+                transparent: true,
+                side: THREE.DoubleSide
+            })
         );
-        root.add(placeholder);
+        pad.rotation.x = -Math.PI / 2;
+        pad.position.y = 0.3;
+        root.add(pad);
+    } else {
+        const template = objectData.material ? await loadModelTemplate(objectData) : null;
+        if (template) {
+            root.add(template.clone(true));
+        } else {
+            const placeholder = new THREE.Mesh(
+                new THREE.BoxGeometry(18, 18, 18),
+                new THREE.MeshLambertMaterial({ color: 0xd46b45 })
+            );
+            root.add(placeholder);
+        }
     }
     root.userData.mapIndex = index;
     root.position.set(objectData.position.x, objectData.position.y, objectData.position.z);
@@ -301,7 +349,39 @@ async function createObjectRoot(objectData, index) {
     });
     scene.add(root);
     roots[index] = root;
+    root.userData.snapToTerrain = snapToTerrain || objectData.model === 'takeoff_pad';
+    if (root.userData.snapToTerrain) snapObjectToTerrain(root, objectData);
     return root;
+}
+
+let takeoffPadTexturePromise;
+
+function loadTakeoffPadTexture() {
+    if (!takeoffPadTexturePromise) {
+        takeoffPadTexturePromise = new Promise(resolve => {
+            new THREE.TextureLoader().load('textures/piattaforma.png', resolve, undefined, () => resolve(null));
+        });
+    }
+    return takeoffPadTexturePromise;
+}
+
+function snapObjectToTerrain(root, objectData) {
+    ground.updateMatrixWorld(true);
+    terrainRaycaster.set(
+        new THREE.Vector3(root.position.x, 10000, root.position.z),
+        new THREE.Vector3(0, -1, 0)
+    );
+    const intersections = terrainRaycaster.intersectObject(ground, false);
+    const groundHeight = intersections.length ? intersections[0].point.y : 0;
+    if (objectData.model === 'takeoff_pad') {
+        root.position.y = groundHeight;
+        objectData.position.y = groundHeight;
+        return;
+    }
+    root.updateMatrixWorld(true);
+    const bounds = new THREE.Box3().setFromObject(root);
+    root.position.y += groundHeight - bounds.min.y;
+    objectData.position.y = root.position.y;
 }
 
 function displayModelName(objectData) {
@@ -376,6 +456,10 @@ function bindControls() {
         const entry = modelCatalog.find(model =>
             model.model === document.getElementById('modelSelect').value);
         if (!entry) return;
+        if (entry.model === 'takeoff_pad' && objects.some(object => object.model === 'takeoff_pad')) {
+            editorStatus.textContent = text.padOnly;
+            return;
+        }
         const index = objects.length;
         const objectData = normalizeObject({
             ...entry,
@@ -384,7 +468,7 @@ function bindControls() {
         });
         objects.push(objectData);
         renderObjectList();
-        await createObjectRoot(objectData, index);
+        await createObjectRoot(objectData, index, true);
         selectObject(index);
     });
     document.getElementById('removeObjectBtn').addEventListener('click', () => {
@@ -402,8 +486,9 @@ function bindControls() {
         selectObject(-1);
     });
     document.querySelectorAll('[data-transform]').forEach(input => {
-        input.addEventListener('change', () => {
+        input.addEventListener('input', () => {
             if (selectedIndex < 0) return;
+            if (input.value.trim() === '') return;
             const [group, axis] = input.dataset.transform.split('.');
             const value = Number(input.value);
             if (!Number.isFinite(value)) return;
@@ -414,15 +499,38 @@ function bindControls() {
                 objects[selectedIndex][group][axis] = value;
             }
             applyObjectTransform(selectedIndex);
+            if (roots[selectedIndex].userData.snapToTerrain &&
+                (group === 'scale' || (group === 'position' && axis !== 'y'))) {
+                snapObjectToTerrain(roots[selectedIndex], objects[selectedIndex]);
+                applyObjectTransform(selectedIndex);
+                document.querySelector('[data-transform="position.y"]').value =
+                    objects[selectedIndex].position.y;
+            }
         });
     });
     document.getElementById('resetCameraBtn').addEventListener('click', resetCamera);
-    document.getElementById('closeMapBtn').addEventListener('click', () => window.close());
-    document.getElementById('applyMapBtn').addEventListener('click', applyMapToMainTab);
+    document.getElementById('applyMapBtn').addEventListener('click', saveScenario);
     window.addEventListener('keydown', event => {
-        if (event.key === 'Delete' && selectedIndex >= 0 &&
-            !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+        if (event.key === 'Delete' && selectedIndex >= 0) {
             document.getElementById('removeObjectBtn').click();
+            return;
+        }
+        const step = Math.max(35, orbitRadius * 0.04);
+        const moves = {
+            ArrowLeft: [-step, 0],
+            a: [-step, 0],
+            ArrowRight: [step, 0],
+            d: [step, 0],
+            ArrowUp: [0, step],
+            w: [0, step],
+            ArrowDown: [0, -step],
+            s: [0, -step]
+        };
+        const movement = moves[event.key] || moves[event.key.toLowerCase()];
+        if (movement) {
+            event.preventDefault();
+            panCameraByWorld(movement[0], movement[1]);
         }
     });
 }
@@ -441,11 +549,20 @@ function getGroundPoint(event) {
 }
 
 function bindViewportControls() {
+    renderer.domElement.addEventListener('contextmenu', event => event.preventDefault());
     renderer.domElement.addEventListener('pointerdown', event => {
-        if (event.button !== 0) return;
+        if (![0, 1, 2].includes(event.button)) return;
         renderer.domElement.setPointerCapture(event.pointerId);
         pointerStart = { x: event.clientX, y: event.clientY };
         pointerMoved = false;
+        if (event.button === 1) {
+            isPanning = true;
+            return;
+        }
+        if (event.button === 2) {
+            isOrbiting = true;
+            return;
+        }
         setPointerRay(event);
         const hits = raycaster.intersectObjects(scene.children, true);
         const objectHit = hits.find(hit => hit.object.userData.mapRoot);
@@ -459,11 +576,11 @@ function bindViewportControls() {
             }
         } else {
             selectObject(-1);
-            isOrbiting = true;
+            isPanning = event.shiftKey || event.pointerType === 'touch';
         }
     });
     renderer.domElement.addEventListener('pointermove', event => {
-        if (!isOrbiting && !isDraggingObject) return;
+        if (!isOrbiting && !isPanning && !isDraggingObject) return;
         const deltaX = event.clientX - pointerStart.x;
         const deltaY = event.clientY - pointerStart.y;
         if (Math.abs(deltaX) + Math.abs(deltaY) > 2) pointerMoved = true;
@@ -473,6 +590,9 @@ function bindViewportControls() {
             const objectData = objects[selectedIndex];
             objectData.position.x = Math.round((point.x + dragOffset.x) * 10) / 10;
             objectData.position.z = Math.round((point.z + dragOffset.z) * 10) / 10;
+            if (roots[selectedIndex].userData.snapToTerrain) {
+                snapObjectToTerrain(roots[selectedIndex], objectData);
+            }
             applyObjectTransform(selectedIndex);
             document.querySelectorAll('[data-transform]').forEach(input => {
                 if (input.dataset.transform === 'position.x') input.value = objectData.position.x;
@@ -481,12 +601,15 @@ function bindViewportControls() {
         } else if (isOrbiting) {
             orbitTheta -= deltaX * 0.006;
             orbitPhi = Math.max(0.15, Math.min(Math.PI / 2.05, orbitPhi + deltaY * 0.005));
+            updateCameraPosition();
+        } else if (isPanning) {
+            panCameraByPixels(deltaX, deltaY);
         }
         pointerStart = { x: event.clientX, y: event.clientY };
-        updateCameraPosition();
     });
     const endPointer = () => {
         isOrbiting = false;
+        isPanning = false;
         isDraggingObject = false;
     };
     renderer.domElement.addEventListener('pointerup', endPointer);
@@ -500,17 +623,38 @@ function bindViewportControls() {
 
 function updateCameraPosition() {
     camera.position.set(
-        orbitRadius * Math.sin(orbitPhi) * Math.sin(orbitTheta),
-        orbitRadius * Math.cos(orbitPhi),
-        orbitRadius * Math.sin(orbitPhi) * Math.cos(orbitTheta)
+        cameraTarget.x + orbitRadius * Math.sin(orbitPhi) * Math.sin(orbitTheta),
+        cameraTarget.y + orbitRadius * Math.cos(orbitPhi),
+        cameraTarget.z + orbitRadius * Math.sin(orbitPhi) * Math.cos(orbitTheta)
     );
-    camera.lookAt(0, 0, 0);
+    camera.lookAt(cameraTarget);
+}
+
+function panCameraByWorld(rightDistance, forwardDistance) {
+    camera.updateMatrixWorld(true);
+    const right = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 0);
+    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+    right.y = 0;
+    forward.y = 0;
+    right.normalize();
+    forward.normalize();
+    cameraTarget.addScaledVector(right, rightDistance);
+    cameraTarget.addScaledVector(forward, forwardDistance);
+    updateCameraPosition();
+}
+
+function panCameraByPixels(deltaX, deltaY) {
+    const height = Math.max(1, mapViewport.clientHeight);
+    const worldUnitsPerPixel =
+        2 * orbitRadius * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) / height;
+    panCameraByWorld(-deltaX * worldUnitsPerPixel, deltaY * worldUnitsPerPixel);
 }
 
 function resetCamera() {
     orbitTheta = Math.PI / 4;
     orbitPhi = 0.95;
     orbitRadius = 1700;
+    cameraTarget.set(0, 0, 0);
     updateCameraPosition();
 }
 
@@ -529,10 +673,16 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-function applyMapToMainTab() {
+function saveScenario() {
     if (!resultKey) {
         viewportMessage.textContent = text.noParent;
         viewportMessage.hidden = false;
+        return;
+    }
+    const name = mapNameInput.value.trim();
+    if (!name) {
+        editorStatus.textContent = text.nameRequired;
+        mapNameInput.focus();
         return;
     }
     const data = {
@@ -545,12 +695,23 @@ function applyMapToMainTab() {
             rotation: { ...object.rotation }
         }))
     };
-    localStorage.setItem(resultKey, JSON.stringify({
-        name: mapNameInput.value.trim(),
-        data,
-        savedAt: Date.now()
-    }));
-    editorStatus.textContent = text.sent;
+    const id = draft.id || `custom:${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const scenario = { id, name, data };
+    try {
+        const storedScenarios = JSON.parse(localStorage.getItem('droneCommanderScenarios') || '[]');
+        const scenarios = Array.isArray(storedScenarios) ? storedScenarios : [];
+        const updatedScenarios = scenarios.filter(item => item.id !== id);
+        updatedScenarios.push(scenario);
+        localStorage.setItem('droneCommanderScenarios', JSON.stringify(updatedScenarios));
+        draft.id = id;
+        draft.name = name;
+        localStorage.setItem(draftKey, JSON.stringify(draft));
+        localStorage.setItem(resultKey, JSON.stringify({ ...scenario, savedAt: Date.now() }));
+        editorStatus.textContent = text.saved;
+    } catch (error) {
+        editorStatus.textContent = text.storageError;
+        console.error('Unable to save the scenario:', error);
+    }
 }
 
 async function initMapEditor() {
@@ -581,14 +742,16 @@ async function initMapEditor() {
     sunLight.castShadow = true;
     scene.add(sunLight);
     ground = new THREE.Mesh(
-        createTerrainGeometry(Number(sourceData.hillHeight) || 0),
+        createTerrainGeometry(Number(sourceData.hillHeight) || 0, sourceData.terrainSeed),
         new THREE.MeshLambertMaterial({ color: 0xffffff })
     );
     ground.rotation.x = -Math.PI / 2;
-    ground.position.y = -0.15;
+    ground.position.y = 0;
     ground.receiveShadow = true;
     scene.add(ground);
-    scene.add(new THREE.GridHelper(4100, 82, 0x5e8079, 0x91aaa4));
+    const grid = new THREE.GridHelper(4100, 82, 0x5e8079, 0x91aaa4);
+    grid.position.y = 0.04;
+    scene.add(grid);
     const originAxes = new THREE.AxesHelper(120);
     originAxes.position.y = 1;
     scene.add(originAxes);

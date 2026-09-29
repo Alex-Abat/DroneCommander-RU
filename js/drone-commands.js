@@ -17,6 +17,14 @@ const getNumber = (value, fallback = 0) => {
     const number = Number(value);
     return Number.isFinite(number) ? number : fallback;
 };
+const createSeededRandom = seed => {
+    let state = seed >>> 0;
+    if (!state) state = 1;
+    return () => {
+        state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+        return state / 4294967296;
+    };
+};
 const getDuration = value => {
     const duration = getNumber(value);
     return duration > 0 ? duration : 0;
@@ -143,6 +151,8 @@ let collisionEmergencyActive = false;
 let lastSafeDronePosition = null;
 let directionalLight;
 let droneGroundMarker;
+let scenarioStartPosition = { x: 0, z: 0 };
+let scenarioLoaded = false;
 let lastSmokeTime = 0;
 
 // Camera state is updated by UI events and consumed by the render loop.
@@ -278,6 +288,41 @@ const getSurfaceHeightAt = (x, z) => getHeightAt(collisionMeshes, x, z);
 const getGroundHeightAt = (x, z) => getHeightAt(groundMeshes, x, z);
 
 const getSafeAltitudeAt = (x, z) => getSurfaceHeightAt(x, z) + collisionPadding;
+
+const addScenarioTakeoffPad = objectData => {
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.load('textures/piattaforma.png', texture => {
+        scene.updateMatrixWorld(true);
+        const pad = new THREE.Mesh(
+            new THREE.PlaneGeometry(16, 16),
+            new THREE.MeshLambertMaterial({
+                map: texture,
+                transparent: true,
+                side: THREE.DoubleSide
+            })
+        );
+        const position = objectData.position || { x: 0, z: 0 };
+        const rotation = objectData.rotation || {};
+        pad.rotation.set(
+            -Math.PI / 2,
+            THREE.MathUtils.degToRad(rotation.y || 0),
+            THREE.MathUtils.degToRad(rotation.z || 0)
+        );
+        pad.position.set(
+            getNumber(position.x),
+            getGroundHeightAt(getNumber(position.x), getNumber(position.z)) + 0.3,
+            getNumber(position.z)
+        );
+        pad.scale.setScalar(getNumber(objectData.scale, 1) || 1);
+        pad.userData.type = 'scenario';
+        scene.add(pad);
+        registerCollisionMesh(pad);
+        registerGroundMesh(pad);
+        scene.updateMatrixWorld(true);
+        resetScene();
+        enforceTerrainCollision();
+    }, undefined, error => console.error('Unable to load the takeoff pad texture:', error));
+};
 
 const rememberSafeDronePosition = () => {
     if (!drone || !drone.mesh || collisionEmergencyActive) return;
@@ -530,9 +575,26 @@ function loadScenario(file) {
 
     scenarioData
         .then(data => {
+            scenarioLoaded = true;
+            const takeoffPad = Array.isArray(data.objects) ?
+                data.objects.find(object => object.model === 'takeoff_pad') : null;
+            const padPosition = takeoffPad && takeoffPad.position || { x: 0, z: 0 };
+            scenarioStartPosition = {
+                x: getNumber(padPosition.x),
+                z: getNumber(padPosition.z)
+            };
+            const defaultPad = scene.children.find(object => object.userData.defaultTakeoffPad);
+            if (defaultPad) {
+                scene.remove(defaultPad);
+                collisionMeshes = collisionMeshes.filter(mesh => mesh !== defaultPad);
+                groundMeshes = groundMeshes.filter(mesh => mesh !== defaultPad);
+                defaultPad.geometry.dispose();
+                defaultPad.material.dispose();
+            }
+
             // Terrain
             const textureName = data.groundTexture || 'grass.jpg';
-            const hillHeight = data.hillHeight || 25;
+            const hillHeight = getNumber(data.hillHeight, 25);
 
             const textureLoader = new THREE.TextureLoader();
             textureLoader.load(
@@ -575,6 +637,7 @@ function loadScenario(file) {
 
                     const vertices = geometry.vertices;
                     const radius = 200; // Keep a flat take-off area around the origin.
+                    const terrainRandom = createSeededRandom(getNumber(data.terrainSeed, 1));
 
                     for (let i = 0; i < vertices.length; i++) {
                         const v = vertices[i];
@@ -583,8 +646,8 @@ function loadScenario(file) {
                         if (distance < radius) {
                             v.z = 0;
                         } else {
-                            const rx = Math.random() * (1.0 - 0.001) + 0.001;
-                            const ry = Math.random() * (1.0 - 0.001) + 0.001;
+                            const rx = terrainRandom() * (1.0 - 0.001) + 0.001;
+                            const ry = terrainRandom() * (1.0 - 0.001) + 0.001;
                             v.z = hillHeight * Math.sin(v.x * rx) * Math.cos(v.y * ry);
                         }
                     }
@@ -603,6 +666,7 @@ function loadScenario(file) {
                     scene.add(plane);
                     registerCollisionMesh(plane);
                     registerGroundMesh(plane);
+                    if (takeoffPad) addScenarioTakeoffPad(takeoffPad);
                     resetScene();
                     enforceTerrainCollision();
                 },
@@ -616,6 +680,7 @@ function loadScenario(file) {
             if (!data.objects) return;
 
             data.objects.forEach(obj => {
+                if (obj.model === 'takeoff_pad') return;
                 const mtlLoader = new THREE.MTLLoader();
                 mtlLoader.setPath('models/');
                 mtlLoader.load(obj.material, materials => {
@@ -760,6 +825,10 @@ const initThree = () => {
     piattaformaLoader.load(
         'textures/piattaforma.png',
         function(texture) {
+            if (scenarioLoaded) {
+                texture.dispose();
+                return;
+            }
             const planeMaterial = new THREE.MeshLambertMaterial({
                 map: texture,
                 transparent: true
@@ -771,6 +840,7 @@ const initThree = () => {
             registerCollisionMesh(plane);
             scene.add(plane);
             plane.userData.type = 'keep';
+            plane.userData.defaultTakeoffPad = true;
         },
         undefined,
         function(err) {
@@ -2019,8 +2089,10 @@ const resetScene = () => {
         animationGeneration++;
         collisionEmergencyActive = false;
     }
-    const startAltitude = getSafeAltitudeAt(0, 0);
-    drone.mesh.position.set(0, startAltitude, 0);
+    const startX = scenarioStartPosition.x;
+    const startZ = scenarioStartPosition.z;
+    const startAltitude = getSafeAltitudeAt(startX, startZ);
+    drone.mesh.position.set(startX, startAltitude, startZ);
     drone.mesh.rotation.set(0, 0, 0);
     drone.altitude = startAltitude;
     drone.direction = 0;

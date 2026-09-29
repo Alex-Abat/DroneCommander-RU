@@ -543,7 +543,9 @@ Blockly.Msg.BKY_SAVE = "Сохранить";
 
 Blockly.Msg.BKY_HELP = "Помощь";
 Blockly.Msg.BKY_SCENARIO = "Сценарий";
-Blockly.Msg.BKY_SCENARIO_ADD = "Добавить сценарий";
+Blockly.Msg.BKY_SCENARIO_ADD = "Создать сценарий";
+Blockly.Msg.BKY_SCENARIO_DEFAULT = "Новый сценарий";
+Blockly.Msg.BKY_NEW_PROGRAM = "Новая программа";
 Blockly.Msg.BKY_SCENARIO_EDIT = "Редактировать сценарий";
 Blockly.Msg.BKY_SCENARIO_NAME = "Название";
 Blockly.Msg.BKY_SCENARIO_DATA = "Данные сценария (JSON)";

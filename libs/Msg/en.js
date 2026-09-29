@@ -540,7 +540,9 @@ Blockly.Msg.BKY_SAVE = "Save";
 
 Blockly.Msg.BKY_HELP = "Help";
 Blockly.Msg.BKY_SCENARIO = "Scenario";
-Blockly.Msg.BKY_SCENARIO_ADD = "Add scenario";
+Blockly.Msg.BKY_SCENARIO_ADD = "Create scenario";
+Blockly.Msg.BKY_SCENARIO_DEFAULT = "New scenario";
+Blockly.Msg.BKY_NEW_PROGRAM = "New program";
 Blockly.Msg.BKY_SCENARIO_EDIT = "Edit scenario";
 Blockly.Msg.BKY_SCENARIO_NAME = "Name";
 Blockly.Msg.BKY_SCENARIO_DATA = "Scenario data (JSON)";
