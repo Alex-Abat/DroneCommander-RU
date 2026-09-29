@@ -47,8 +47,8 @@ https://alex-abat.github.io/DroneCommander-RU/
 Клонируйте репозиторий и запустите любой статический HTTP-сервер:
 
 ```sh
-git clone https://github.com/vroby65/DroneCommander.git
-cd DroneCommander
+git https://github.com/Alex-Abat/DroneCommander-RU.git
+cd DroneCommander-RU
 python3 -m http.server 8000
 ```
 
