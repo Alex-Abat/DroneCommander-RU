@@ -1,2 +1,17 @@
-dist/
+# Node
 node_modules/
+
+# Electron builds
+dist/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# IDE
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
