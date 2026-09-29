@@ -1,0 +1,25 @@
+{
+  "name": "drone-commander-ru",
+  "productName": "Drone Commander RU",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^44.4.5",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "ru.alexabat.dronecommander",
+    "productName": "Drone Commander RU",
+    "directories": {
+      "buildResources": "build"
+    },
+    "win": {
+      "target": "portable",
+      "icon": "Drone Commander.svg"
+    }
+  }
+}
