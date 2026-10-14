@@ -387,7 +387,10 @@ const updateViewerCanvases = () => {
 let resizeTimeout;
 window.addEventListener('resize', () => {
     clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(updateViewerCanvases, 100);
+    resizeTimeout = setTimeout(() => {
+        if (workspace) Blockly.svgResize(workspace);
+        updateViewerCanvases();
+    }, 100);
 }, {
     passive: true
 });

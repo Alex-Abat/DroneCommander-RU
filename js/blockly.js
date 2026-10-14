@@ -1307,7 +1307,7 @@ const initBlockly = () => {
         zoom: {
             controls: true,
             wheel: true,
-            startScale: 1,
+            startScale: window.matchMedia('(max-width: 760px)').matches ? 0.8 : 1,
             maxScale: 2,
             minScale: 0.4,
             scaleSpeed: 1.2,

@@ -12,6 +12,9 @@ window.addEventListener('load', () => {
         defineCustomBlocks();
         initBlockly();
         restoreProgramFromLocalStorage();
+        if (window.matchMedia('(max-width: 760px)').matches) {
+            workspace.scrollCenter();
+        }
         initThree();
         document.getElementById('graphicsSelect').value = graphicsProfileName;
         applyGraphicsProfile(graphicsProfileName);
