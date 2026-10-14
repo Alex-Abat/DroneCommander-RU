@@ -8,7 +8,7 @@
     "build": "electron-builder --win portable"
   },
   "devDependencies": {
-    "electron": "^44.4.5",
+    "electron": "^44.5.0",
     "electron-builder": "^26.15.3"
   },
   "build": {
@@ -18,7 +18,7 @@
       "buildResources": "build"
     },
     "win": {
-      "target": [ 
+      "target": [
         "portable"
       ],
       "icon": "Drone Commander.svg"
